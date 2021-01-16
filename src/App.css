@@ -1,0 +1,25 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 0.25em;
+  text-align: center;
+  background-color: #282c34;
+  color: white;
+}
+
+.app__title {
+  font-size: 1em;
+  text-align: center;
+}
+
+.app__footer {
+  margin-top: auto;
+}
+
+.footer {
+  text-align: center;
+}
