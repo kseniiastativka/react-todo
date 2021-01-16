@@ -9,7 +9,7 @@ function App() {
     <div className="app">
       <header className="header">TODO app</header>
 
-      <main>
+      <main className="app__main">
         <h1 className="app__title">This is a TODO app written with React</h1>
         <form
           onSubmit={(event) => {
