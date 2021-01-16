@@ -47,7 +47,7 @@ function App() {
         </ol>
       </main>
 
-      <footer className="footer app__footer">by Xenon</footer>
+      <footer className="footer app__footer">by Anxenomoon</footer>
     </div>
   )
 }
