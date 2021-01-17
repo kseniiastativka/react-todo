@@ -3,7 +3,7 @@ import { useState } from "react"
 
 function App() {
   const [todoInput, setTodoInput] = useState("")
-  const [todos, setTodos] = useState<string[]>([])
+  const [todos, setTodos] = useState<{ id: number; name: string }[]>([])
 
   return (
     <div className="app">
@@ -22,7 +22,9 @@ function App() {
               return
             }
 
-            setTodos((prevTodos) => prevTodos.concat(todoInput))
+            setTodos((prevTodos) =>
+              prevTodos.concat({ id: Date.now(), name: todoInput }),
+            )
             setTodoInput("")
           }}
         >
@@ -40,9 +42,37 @@ function App() {
           </label>
           <input type="submit" value="Add" />
         </form>
+
         <ol>
-          {todos.map((todo) => (
-            <li>{todo}</li>
+          {todos.map((todo, todoIndex) => (
+            <li key={todo.id}>
+              {todo.name}
+
+              <button
+                onClick={() => {
+                  setTodos((prevTodos) => {
+                    return prevTodos.filter((_, i) => {
+                      return i !== todoIndex
+                    })
+                  })
+                }}
+              >
+                Delete
+              </button>
+
+              <button
+                onClick={() => {
+                  setTodos((prevTodos) =>
+                    prevTodos
+                      .slice(0, todoIndex + 1)
+                      .concat({ id: Date.now(), name: todo.name })
+                      .concat(prevTodos.slice(todoIndex + 1)),
+                  )
+                }}
+              >
+                Copy
+              </button>
+            </li>
           ))}
         </ol>
       </main>
