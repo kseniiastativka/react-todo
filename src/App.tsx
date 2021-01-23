@@ -3,7 +3,9 @@ import { useState } from "react"
 
 function App() {
   const [todoInput, setTodoInput] = useState("")
-  const [todos, setTodos] = useState<{ id: number; name: string }[]>([])
+  const [todos, setTodos] = useState<
+    { id: number; name: string; isInEditMode: boolean }[]
+  >([])
 
   return (
     <div className="app">
@@ -23,7 +25,11 @@ function App() {
             }
 
             setTodos((prevTodos) =>
-              prevTodos.concat({ id: Date.now(), name: todoInput }),
+              prevTodos.concat({
+                id: Date.now(),
+                name: todoInput,
+                isInEditMode: false,
+              }),
             )
             setTodoInput("")
           }}
@@ -46,7 +52,46 @@ function App() {
         <ol>
           {todos.map((todo, todoIndex) => (
             <li key={todo.id}>
-              {todo.name}
+              {todo.isInEditMode ? (
+                <input
+                  type="text"
+                  value={todo.name}
+                  onChange={(event) => {
+                    setTodos((prevToDos) => {
+                      return prevToDos.map((prevTodo) => {
+                        if (prevTodo.id === todo.id) {
+                          return {
+                            ...prevTodo,
+                            name: event.target.value,
+                          }
+                        }
+                        return prevTodo
+                      })
+                    })
+                  }}
+                />
+              ) : (
+                todo.name
+              )}
+
+              <button
+                onClick={() => {
+                  setTodos((prevTodos) => {
+                    return prevTodos.map((prevTodo) => {
+                      if (prevTodo.id === todo.id) {
+                        return {
+                          ...prevTodo,
+                          isInEditMode: !prevTodo.isInEditMode,
+                        }
+                      }
+
+                      return prevTodo
+                    })
+                  })
+                }}
+              >
+                ✎
+              </button>
 
               <button
                 onClick={() => {
@@ -65,7 +110,11 @@ function App() {
                   setTodos((prevTodos) =>
                     prevTodos
                       .slice(0, todoIndex + 1)
-                      .concat({ id: Date.now(), name: todo.name })
+                      .concat({
+                        id: Date.now(),
+                        name: todo.name,
+                        isInEditMode: false,
+                      })
                       .concat(prevTodos.slice(todoIndex + 1)),
                   )
                 }}
