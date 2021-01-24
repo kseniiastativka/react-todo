@@ -1,19 +1,32 @@
 import "./App.css"
 import { useEffect, useRef, useState } from "react"
 import { get, set } from "idb-keyval"
+import { array, boolean, Infer, is, number, object, string } from "superstruct"
 
 const TODOS_DB_KEY = "todos-v1"
 
+const Todo = object({
+  id: number(),
+  name: string(),
+  isInEditMode: boolean(),
+})
+
+const Todos = array(Todo)
+
+type Todos = Infer<typeof Todos>
+
 function App() {
   const [todoInput, setTodoInput] = useState("")
-  const [todos, setTodos] = useState<
-    { id: number; name: string; isInEditMode: boolean }[]
-  >([])
+  const [todos, setTodos] = useState<Todos>([])
   const isFirstRender = useRef(true)
 
   useEffect(() => {
     if (isFirstRender.current) {
-      get(TODOS_DB_KEY).then((todos) => setTodos(todos))
+      get(TODOS_DB_KEY).then((todos) => {
+        if (is(todos, Todos)) {
+          setTodos(todos)
+        }
+      })
       isFirstRender.current = false
       return
     }
