@@ -1,11 +1,25 @@
 import "./App.css"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { get, set } from "idb-keyval"
+
+const TODOS_DB_KEY = "todos-v1"
 
 function App() {
   const [todoInput, setTodoInput] = useState("")
   const [todos, setTodos] = useState<
     { id: number; name: string; isInEditMode: boolean }[]
   >([])
+  const isFirstRender = useRef(true)
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      get(TODOS_DB_KEY).then((todos) => setTodos(todos))
+      isFirstRender.current = false
+      return
+    }
+
+    set(TODOS_DB_KEY, todos).catch((err) => console.error(err))
+  }, [todos])
 
   return (
     <div className="app">
