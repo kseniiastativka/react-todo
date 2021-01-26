@@ -11,9 +11,9 @@ const Todo = object({
   isInEditMode: boolean(),
 })
 
-const Todos = array(Todo)
+const TodosStruct = array(Todo)
 
-type Todos = Infer<typeof Todos>
+type Todos = Infer<typeof TodosStruct>
 
 function App() {
   const [todoInput, setTodoInput] = useState("")
@@ -23,7 +23,7 @@ function App() {
   useEffect(() => {
     if (isFirstRender.current) {
       get(TODOS_DB_KEY).then((todos) => {
-        if (is(todos, Todos)) {
+        if (is(todos, TodosStruct)) {
           setTodos(todos)
         }
       })
