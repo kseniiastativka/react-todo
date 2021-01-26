@@ -76,6 +76,26 @@ function App() {
           <input type="submit" value="Add" />
         </form>
 
+        <button
+          onClick={() => {
+            setTodos((prevTodos) =>
+              [...prevTodos].sort((prev, next) => {
+                if (prev.name < next.name) {
+                  return -1
+                }
+
+                if (prev.name === next.name) {
+                  return 0
+                }
+
+                return 1
+              }),
+            )
+          }}
+        >
+          Sort todos
+        </button>
+
         <ol>
           {todos.map((todo, todoIndex) => (
             <li key={todo.id}>
@@ -147,6 +167,34 @@ function App() {
                 }}
               >
                 Copy
+              </button>
+
+              <button
+                onClick={() => {
+                  setTodos((prevTodos) =>
+                    prevTodos
+                      .slice(0, todoIndex)
+                      .concat([prevTodos[todoIndex + 1], todo])
+                      .concat(prevTodos.slice(todoIndex + 2)),
+                  )
+                }}
+                disabled={todos.length === todoIndex + 1}
+              >
+                ⬇️
+              </button>
+
+              <button
+                onClick={() => {
+                  setTodos((prevTodos) =>
+                    prevTodos
+                      .slice(0, todoIndex - 1)
+                      .concat([todo, prevTodos[todoIndex - 1]])
+                      .concat(prevTodos.slice(todoIndex + 1)),
+                  )
+                }}
+                disabled={0 === todoIndex}
+              >
+                ⬆️
               </button>
             </li>
           ))}
