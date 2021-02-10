@@ -77,6 +77,7 @@ function App() {
         </form>
 
         <button
+          className="button"
           onClick={() => {
             setTodos((prevTodos) =>
               [...prevTodos].sort((prev, next) => {
@@ -96,106 +97,115 @@ function App() {
           Sort todos
         </button>
 
-        <ol>
+        <ol className="todo-list">
           {todos.map((todo, todoIndex) => (
             <li key={todo.id}>
-              {todo.isInEditMode ? (
-                <input
-                  type="text"
-                  value={todo.name}
-                  onChange={(event) => {
-                    setTodos((prevToDos) => {
-                      return prevToDos.map((prevTodo) => {
+              <div className="todo-list-item">
+                {todo.isInEditMode ? (
+                  <input
+                    type="text"
+                    value={todo.name}
+                    onChange={(event) => {
+                      setTodos((prevToDos) => {
+                        return prevToDos.map((prevTodo) => {
+                          if (prevTodo.id === todo.id) {
+                            return {
+                              ...prevTodo,
+                              name: event.target.value,
+                            }
+                          }
+                          return prevTodo
+                        })
+                      })
+                    }}
+                  />
+                ) : (
+                  <span className="todo-list-item__text">{todo.name}</span>
+                )}
+
+                <button
+                  className="button"
+                  onClick={() => {
+                    setTodos((prevTodos) => {
+                      return prevTodos.map((prevTodo) => {
                         if (prevTodo.id === todo.id) {
                           return {
                             ...prevTodo,
-                            name: event.target.value,
+                            isInEditMode: !prevTodo.isInEditMode,
                           }
                         }
+
                         return prevTodo
                       })
                     })
                   }}
-                />
-              ) : (
-                todo.name
-              )}
+                >
+                  Edit
+                </button>
 
-              <button
-                onClick={() => {
-                  setTodos((prevTodos) => {
-                    return prevTodos.map((prevTodo) => {
-                      if (prevTodo.id === todo.id) {
-                        return {
-                          ...prevTodo,
-                          isInEditMode: !prevTodo.isInEditMode,
-                        }
-                      }
-
-                      return prevTodo
-                    })
-                  })
-                }}
-              >
-                ✎
-              </button>
-
-              <button
-                onClick={() => {
-                  setTodos((prevTodos) => {
-                    return prevTodos.filter((_, i) => {
-                      return i !== todoIndex
-                    })
-                  })
-                }}
-              >
-                Delete
-              </button>
-
-              <button
-                onClick={() => {
-                  setTodos((prevTodos) =>
-                    prevTodos
-                      .slice(0, todoIndex + 1)
-                      .concat({
-                        id: Date.now(),
-                        name: todo.name,
-                        isInEditMode: false,
+                <button
+                  className="button"
+                  onClick={() => {
+                    setTodos((prevTodos) => {
+                      return prevTodos.filter((_, i) => {
+                        return i !== todoIndex
                       })
-                      .concat(prevTodos.slice(todoIndex + 1)),
-                  )
-                }}
-              >
-                Copy
-              </button>
+                    })
+                  }}
+                >
+                  Delete
+                </button>
 
-              <button
-                onClick={() => {
-                  setTodos((prevTodos) =>
-                    prevTodos
-                      .slice(0, todoIndex)
-                      .concat([prevTodos[todoIndex + 1], todo])
-                      .concat(prevTodos.slice(todoIndex + 2)),
-                  )
-                }}
-                disabled={todos.length === todoIndex + 1}
-              >
-                ⬇️
-              </button>
+                <button
+                  className="button"
+                  onClick={() => {
+                    setTodos((prevTodos) =>
+                      prevTodos
+                        .slice(0, todoIndex + 1)
+                        .concat({
+                          id: Date.now(),
+                          name: todo.name,
+                          isInEditMode: false,
+                        })
+                        .concat(prevTodos.slice(todoIndex + 1)),
+                    )
+                  }}
+                >
+                  Copy
+                </button>
 
-              <button
-                onClick={() => {
-                  setTodos((prevTodos) =>
-                    prevTodos
-                      .slice(0, todoIndex - 1)
-                      .concat([todo, prevTodos[todoIndex - 1]])
-                      .concat(prevTodos.slice(todoIndex + 1)),
-                  )
-                }}
-                disabled={0 === todoIndex}
-              >
-                ⬆️
-              </button>
+                <button
+                  className="button"
+                  onClick={() => {
+                    setTodos((prevTodos) =>
+                      prevTodos
+                        .slice(0, todoIndex)
+                        .concat([prevTodos[todoIndex + 1], todo])
+                        .concat(prevTodos.slice(todoIndex + 2)),
+                    )
+                  }}
+                  aria-label="Move down"
+                  disabled={todos.length === todoIndex + 1}
+                >
+                  ⬇
+                </button>
+
+                <button
+                  className="button"
+                  onClick={() => {
+                    setTodos((prevTodos) =>
+                      prevTodos
+                        .slice(0, todoIndex - 1)
+                        .concat([todo, prevTodos[todoIndex - 1]])
+                        .concat(prevTodos.slice(todoIndex + 1)),
+                    )
+                  }}
+                  aria-label="Move up"
+                  disabled={0 === todoIndex}
+                >
+                  ⬆
+                </button>
+              </div>
             </li>
           ))}
         </ol>

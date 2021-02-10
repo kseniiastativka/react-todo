@@ -31,3 +31,28 @@
 .footer {
   text-align: center;
 }
+
+.todo-list {
+  display: inline-grid;
+  row-gap: 0.5em;
+}
+
+.todo-list-item {
+  display: grid;
+  grid-template-columns: 12em 2.5em 3.5em 3em 2em 2em;
+  column-gap: 0.25em;
+  align-items: start;
+}
+
+.todo-list li:not(:first-child) {
+  border-top: 1px solid lightgray;
+  padding-top: 0.5em;
+}
+
+.todo-list-item__text {
+  word-break: break-all;
+}
+
+.button {
+  min-height: 2em;
+}
