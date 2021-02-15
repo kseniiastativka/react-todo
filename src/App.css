@@ -6,6 +6,10 @@
 
 .app__main {
   flex-grow: 1;
+  display: grid;
+  row-gap: 1em;
+  padding: 0.5em;
+  justify-items: start;
   background-image: url("./cat.jpg");
   background-repeat: no-repeat;
   background-position: center;
@@ -37,11 +41,21 @@
   row-gap: 0.5em;
 }
 
+@media (min-width: 768px) {
+  .todo-list {
+    max-width: 50%;
+  }
+}
+
 .todo-list-item {
   display: grid;
-  grid-template-columns: 12em 2.5em 3.5em 3em 2em 2em;
-  column-gap: 0.25em;
-  align-items: start;
+  row-gap: 0.25em;
+}
+
+.todo-list-item__buttons {
+  display: grid;
+  column-gap: 0.5em;
+  grid-template-columns: 2.5em 3.5em 3em 2em 2em;
 }
 
 .todo-list li:not(:first-child) {
