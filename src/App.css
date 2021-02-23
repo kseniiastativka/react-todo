@@ -23,9 +23,17 @@
   color: white;
 }
 
+.add-todo-form__label,
+.add-todo-form {
+  display: inline-grid;
+  column-gap: 0.5em;
+  grid-auto-flow: column;
+  align-items: center;
+}
+
 .app__title {
+  justify-self: center;
   font-size: 1em;
-  text-align: center;
 }
 
 .app__footer {

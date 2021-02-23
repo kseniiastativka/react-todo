@@ -41,6 +41,7 @@ function App() {
       <main className="app__main">
         <h1 className="app__title">This is a TODO app written with React</h1>
         <form
+          className="add-todo-form"
           onSubmit={(event) => {
             event.preventDefault()
             const normalisedInput = todoInput.trim()
@@ -61,7 +62,7 @@ function App() {
             setTodoInput("")
           }}
         >
-          <label>
+          <label className="add-todo-form__label">
             Add TODO
             <input
               onChange={(event) => {
