@@ -9,6 +9,7 @@ const Todo = object({
   id: number(),
   name: string(),
   isInEditMode: boolean(),
+  isCompleted: boolean(),
 })
 
 const TodosStruct = array(Todo)
@@ -25,6 +26,8 @@ function App() {
       get(TODOS_DB_KEY).then((todos) => {
         if (is(todos, TodosStruct)) {
           setTodos(todos)
+        } else {
+          console.warn("Unexpected data in indexed db")
         }
       })
       isFirstRender.current = false
@@ -57,6 +60,7 @@ function App() {
                 id: Date.now(),
                 name: todoInput,
                 isInEditMode: false,
+                isCompleted: false,
               }),
             )
             setTodoInput("")
@@ -121,7 +125,35 @@ function App() {
                     }}
                   />
                 ) : (
-                  <span className="todo-list-item__text">{todo.name}</span>
+                  <div className="todo-list-item__text-container">
+                    <span
+                      className={`todo-list-item__text ${
+                        todo.isCompleted
+                          ? "todo-list-item__text--completed"
+                          : ""
+                      }`}
+                    >
+                      {todo.name}
+                    </span>
+
+                    <input
+                      type="checkbox"
+                      checked={todo.isCompleted}
+                      onChange={(event) => {
+                        setTodos((prevState) => {
+                          return prevState.map((prevTodo) => {
+                            if (prevTodo.id === todo.id) {
+                              return {
+                                ...prevTodo,
+                                isCompleted: event.target.checked,
+                              }
+                            }
+                            return prevTodo
+                          })
+                        })
+                      }}
+                    />
+                  </div>
                 )}
                 <div className="todo-list-item__buttons">
                   <button
@@ -167,6 +199,7 @@ function App() {
                             id: Date.now(),
                             name: todo.name,
                             isInEditMode: false,
+                            isCompleted: false,
                           })
                           .concat(prevTodos.slice(todoIndex + 1)),
                       )

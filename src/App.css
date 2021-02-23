@@ -60,6 +60,12 @@
   row-gap: 0.25em;
 }
 
+.todo-list-item__text-container {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: space-between;
+}
+
 .todo-list-item__buttons {
   display: grid;
   column-gap: 0.5em;
@@ -73,6 +79,12 @@
 
 .todo-list-item__text {
   word-break: break-all;
+  transition: opacity 500ms ease-in-out;
+}
+
+.todo-list-item__text--completed {
+  text-decoration: line-through;
+  opacity: 0.5;
 }
 
 .button {
