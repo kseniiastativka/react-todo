@@ -1,10 +1,20 @@
 import "./App.css"
 import { useEffect, useRef, useState } from "react"
 import { get, set } from "idb-keyval"
-import { array, boolean, Infer, is, number, object, string } from "superstruct"
+import {
+  array,
+  boolean,
+  enums,
+  Infer,
+  is,
+  number,
+  object,
+  string,
+} from "superstruct"
 import { assertNever } from "./utils/assertNever"
 
 const TODOS_DB_KEY = "todos-v1"
+const VISIBILITY_DB_KEY = "visibility-v1"
 
 const Todo = object({
   id: number(),
@@ -14,32 +24,48 @@ const Todo = object({
 })
 
 const TodosStruct = array(Todo)
-
 type Todos = Infer<typeof TodosStruct>
+
+const VisibilityStruct = enums(["all", "incomplete", "complete"])
+type Visibility = Infer<typeof VisibilityStruct>
 
 function App() {
   const [todoInput, setTodoInput] = useState("")
   const [todos, setTodos] = useState<Todos>([])
-  const [visibility, setVisibility] = useState<
-    "all" | "incomplete" | "complete"
-  >("all")
+  const [visibility, setVisibility] = useState<Visibility>("all")
   const isFirstRender = useRef(true)
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      get(TODOS_DB_KEY).then((todos) => {
-        if (is(todos, TodosStruct)) {
-          setTodos(todos)
-        } else {
-          console.warn("Unexpected data in indexed db")
-        }
-      })
-      isFirstRender.current = false
-      return
-    }
+    get(TODOS_DB_KEY).then((todos) => {
+      if (is(todos, TodosStruct)) {
+        setTodos(todos)
+      } else {
+        console.warn("Unexpected todos in indexed db")
+      }
+    })
 
-    set(TODOS_DB_KEY, todos).catch((err) => console.error(err))
+    get(VISIBILITY_DB_KEY).then((visibility) => {
+      if (is(visibility, VisibilityStruct)) {
+        setVisibility(visibility)
+      } else {
+        console.warn("Unexpected visibility in indexed db")
+      }
+    })
+
+    isFirstRender.current = false
+  }, [])
+
+  useEffect(() => {
+    if (!isFirstRender.current) {
+      set(TODOS_DB_KEY, todos).catch((err) => console.error(err))
+    }
   }, [todos])
+
+  useEffect(() => {
+    if (!isFirstRender.current) {
+      set(VISIBILITY_DB_KEY, visibility).catch((err) => console.error(err))
+    }
+  }, [visibility])
 
   return (
     <div className="app">
