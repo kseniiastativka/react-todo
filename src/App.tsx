@@ -2,6 +2,7 @@ import "./App.css"
 import { useEffect, useRef, useState } from "react"
 import { get, set } from "idb-keyval"
 import { array, boolean, Infer, is, number, object, string } from "superstruct"
+import { assertNever } from "./utils/assertNever"
 
 const TODOS_DB_KEY = "todos-v1"
 
@@ -19,7 +20,9 @@ type Todos = Infer<typeof TodosStruct>
 function App() {
   const [todoInput, setTodoInput] = useState("")
   const [todos, setTodos] = useState<Todos>([])
-  const [visibility, setVisibility] = useState<"all" | "incomplete">("all")
+  const [visibility, setVisibility] = useState<
+    "all" | "incomplete" | "complete"
+  >("all")
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -103,29 +106,30 @@ function App() {
           Sort todos
         </button>
 
-        <button
-          onClick={() => {
-            setVisibility((prevVisibility) => {
-              switch (prevVisibility) {
-                case "all":
-                  return "incomplete"
+        <label>
+          <span>Show todos </span>
+          <select
+            value={visibility}
+            onChange={(event) => {
+              setVisibility(() => {
+                switch (event.target.value) {
+                  case "incomplete":
+                    return "incomplete"
 
-                case "incomplete":
-                  return "all"
-              }
-            })
-          }}
-        >
-          {(() => {
-            switch (visibility) {
-              case "all":
-                return "Hide completed"
+                  case "complete":
+                    return "complete"
 
-              case "incomplete":
-                return "Show all"
-            }
-          })()}
-        </button>
+                  default:
+                    return "all"
+                }
+              })
+            }}
+          >
+            <option value="all">All</option>
+            <option value="incomplete">Only incomplete</option>
+            <option value="complete">Only complete</option>
+          </select>
+        </label>
 
         <ol className="todo-list">
           {todos
@@ -136,6 +140,12 @@ function App() {
 
                 case "incomplete":
                   return !todo.isCompleted
+
+                case "complete":
+                  return todo.isCompleted
+
+                default:
+                  return assertNever(visibility)
               }
             })
             .map((todo, todoIndex) => (
