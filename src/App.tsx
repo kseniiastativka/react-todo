@@ -33,6 +33,7 @@ function App() {
   const [todoInput, setTodoInput] = useState("")
   const [todos, setTodos] = useState<Todos>([])
   const [visibility, setVisibility] = useState<Visibility>("all")
+  const [searchInput, setSearchInput] = useState("")
   const isFirstRender = useRef(true)
 
   useEffect(() => {
@@ -157,6 +158,17 @@ function App() {
           </select>
         </label>
 
+        <label>
+          <span>Search </span>
+          <input
+            type="search"
+            onChange={(event) => {
+              setSearchInput(event.target.value)
+            }}
+            value={searchInput}
+          />
+        </label>
+
         <ol className="todo-list">
           {todos
             .filter((todo) => {
@@ -173,6 +185,11 @@ function App() {
                 default:
                   return assertNever(visibility)
               }
+            })
+            .filter((todo) => {
+              return todo.name
+                .toLowerCase()
+                .includes(searchInput.toLowerCase().trim())
             })
             .map((todo, todoIndex) => (
               <li key={todo.id}>
