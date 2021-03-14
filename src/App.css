@@ -44,49 +44,6 @@
   text-align: center;
 }
 
-.todo-list {
-  display: inline-grid;
-  row-gap: 0.5em;
-}
-
-@media (min-width: 768px) {
-  .todo-list {
-    max-width: 50%;
-  }
-}
-
-.todo-list-item {
-  display: grid;
-  row-gap: 0.25em;
-}
-
-.todo-list-item__text-container {
-  display: grid;
-  grid-auto-flow: column;
-  justify-content: space-between;
-}
-
-.todo-list-item__buttons {
-  display: grid;
-  column-gap: 0.5em;
-  grid-template-columns: 2.5em 3.5em 3em 2em 2em;
-}
-
-.todo-list li:not(:first-child) {
-  border-top: 1px solid lightgray;
-  padding-top: 0.5em;
-}
-
-.todo-list-item__text {
-  word-break: break-all;
-  transition: opacity 500ms ease-in-out;
-}
-
-.todo-list-item__text--completed {
-  text-decoration: line-through;
-  opacity: 0.5;
-}
-
 .button {
   min-height: 2em;
 }

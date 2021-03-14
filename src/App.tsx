@@ -1,30 +1,13 @@
 import "./App.css"
 import { useEffect, useRef, useState } from "react"
 import { get, set } from "idb-keyval"
-import {
-  array,
-  boolean,
-  enums,
-  Infer,
-  is,
-  number,
-  object,
-  string,
-} from "superstruct"
+import { enums, Infer, is } from "superstruct"
 import { assertNever } from "./utils/assertNever"
+import { Todos, TodosStruct } from "./structs/todos"
+import { TodoList } from "./TodoList"
 
 const TODOS_DB_KEY = "todos-v1"
 const VISIBILITY_DB_KEY = "visibility-v1"
-
-const Todo = object({
-  id: number(),
-  name: string(),
-  isInEditMode: boolean(),
-  isCompleted: boolean(),
-})
-
-const TodosStruct = array(Todo)
-type Todos = Infer<typeof TodosStruct>
 
 const VisibilityStruct = enums(["all", "incomplete", "complete"])
 type Visibility = Infer<typeof VisibilityStruct>
@@ -35,6 +18,26 @@ function App() {
   const [visibility, setVisibility] = useState<Visibility>("all")
   const [searchInput, setSearchInput] = useState("")
   const isFirstRender = useRef(true)
+
+  const filteredTodos = todos
+    .filter((todo) => {
+      switch (visibility) {
+        case "all":
+          return true
+
+        case "incomplete":
+          return !todo.isCompleted
+
+        case "complete":
+          return todo.isCompleted
+
+        default:
+          return assertNever(visibility)
+      }
+    })
+    .filter((todo) => {
+      return todo.name.toLowerCase().includes(searchInput.toLowerCase().trim())
+    })
 
   useEffect(() => {
     get(TODOS_DB_KEY).then((todos) => {
@@ -169,169 +172,82 @@ function App() {
           />
         </label>
 
-        <ol className="todo-list">
-          {todos
-            .filter((todo) => {
-              switch (visibility) {
-                case "all":
-                  return true
-
-                case "incomplete":
-                  return !todo.isCompleted
-
-                case "complete":
-                  return todo.isCompleted
-
-                default:
-                  return assertNever(visibility)
-              }
+        <TodoList
+          onComplete={(id, isCompleted) => {
+            setTodos((prevState) => {
+              return prevState.map((prevTodo) => {
+                if (prevTodo.id === id) {
+                  return {
+                    ...prevTodo,
+                    isCompleted,
+                  }
+                }
+                return prevTodo
+              })
             })
-            .filter((todo) => {
-              return todo.name
-                .toLowerCase()
-                .includes(searchInput.toLowerCase().trim())
+          }}
+          onEdit={(id, name) => {
+            setTodos((prevToDos) => {
+              return prevToDos.map((prevTodo) => {
+                if (prevTodo.id === id) {
+                  return { ...prevTodo, name }
+                }
+                return prevTodo
+              })
             })
-            .map((todo, todoIndex) => (
-              <li key={todo.id}>
-                <div className="todo-list-item">
-                  {todo.isInEditMode ? (
-                    <input
-                      type="text"
-                      value={todo.name}
-                      onChange={(event) => {
-                        setTodos((prevToDos) => {
-                          return prevToDos.map((prevTodo) => {
-                            if (prevTodo.id === todo.id) {
-                              return {
-                                ...prevTodo,
-                                name: event.target.value,
-                              }
-                            }
-                            return prevTodo
-                          })
-                        })
-                      }}
-                    />
-                  ) : (
-                    <div className="todo-list-item__text-container">
-                      <span
-                        className={`todo-list-item__text ${
-                          todo.isCompleted
-                            ? "todo-list-item__text--completed"
-                            : ""
-                        }`}
-                      >
-                        {todo.name}
-                      </span>
+          }}
+          onEditModeToggle={(id: number) => {
+            setTodos((prevTodos) => {
+              return prevTodos.map((prevTodo) => {
+                if (prevTodo.id === id) {
+                  return {
+                    ...prevTodo,
+                    isInEditMode: !prevTodo.isInEditMode,
+                  }
+                }
 
-                      <input
-                        type="checkbox"
-                        checked={todo.isCompleted}
-                        onChange={(event) => {
-                          setTodos((prevState) => {
-                            return prevState.map((prevTodo) => {
-                              if (prevTodo.id === todo.id) {
-                                return {
-                                  ...prevTodo,
-                                  isCompleted: event.target.checked,
-                                }
-                              }
-                              return prevTodo
-                            })
-                          })
-                        }}
-                      />
-                    </div>
-                  )}
-                  <div className="todo-list-item__buttons">
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setTodos((prevTodos) => {
-                          return prevTodos.map((prevTodo) => {
-                            if (prevTodo.id === todo.id) {
-                              return {
-                                ...prevTodo,
-                                isInEditMode: !prevTodo.isInEditMode,
-                              }
-                            }
-
-                            return prevTodo
-                          })
-                        })
-                      }}
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setTodos((prevTodos) => {
-                          return prevTodos.filter((_, i) => {
-                            return i !== todoIndex
-                          })
-                        })
-                      }}
-                    >
-                      Delete
-                    </button>
-
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setTodos((prevTodos) =>
-                          prevTodos
-                            .slice(0, todoIndex + 1)
-                            .concat({
-                              id: Date.now(),
-                              name: todo.name,
-                              isInEditMode: false,
-                              isCompleted: false,
-                            })
-                            .concat(prevTodos.slice(todoIndex + 1)),
-                        )
-                      }}
-                    >
-                      Copy
-                    </button>
-
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setTodos((prevTodos) =>
-                          prevTodos
-                            .slice(0, todoIndex)
-                            .concat([prevTodos[todoIndex + 1], todo])
-                            .concat(prevTodos.slice(todoIndex + 2)),
-                        )
-                      }}
-                      aria-label="Move down"
-                      disabled={todos.length === todoIndex + 1}
-                    >
-                      ⬇
-                    </button>
-
-                    <button
-                      className="button"
-                      onClick={() => {
-                        setTodos((prevTodos) =>
-                          prevTodos
-                            .slice(0, todoIndex - 1)
-                            .concat([todo, prevTodos[todoIndex - 1]])
-                            .concat(prevTodos.slice(todoIndex + 1)),
-                        )
-                      }}
-                      aria-label="Move up"
-                      disabled={0 === todoIndex}
-                    >
-                      ⬆
-                    </button>
-                  </div>
-                </div>
-              </li>
-            ))}
-        </ol>
+                return prevTodo
+              })
+            })
+          }}
+          onDelete={(index) => {
+            setTodos((prevTodos) => {
+              return prevTodos.filter((_, i) => {
+                return i !== index
+              })
+            })
+          }}
+          onCopy={(index, name) => {
+            setTodos((prevTodos) =>
+              prevTodos
+                .slice(0, index + 1)
+                .concat({
+                  id: Date.now(),
+                  name,
+                  isInEditMode: false,
+                  isCompleted: false,
+                })
+                .concat(prevTodos.slice(index + 1)),
+            )
+          }}
+          onMoveDown={(index) => {
+            setTodos((prevTodos) =>
+              prevTodos
+                .slice(0, index)
+                .concat([prevTodos[index + 1], prevTodos[index]])
+                .concat(prevTodos.slice(index + 2)),
+            )
+          }}
+          onMoveUp={(index) => {
+            setTodos((prevTodos) =>
+              prevTodos
+                .slice(0, index - 1)
+                .concat([prevTodos[index], prevTodos[index - 1]])
+                .concat(prevTodos.slice(index + 1)),
+            )
+          }}
+          todos={filteredTodos}
+        />
       </main>
 
       <footer className="footer app__footer">by Anxenomoon</footer>
